@@ -2,41 +2,43 @@
 
 ## Render deployment
 
-This repository is a monorepo with two services:
+This repository is configured to deploy as a single Docker service on Render.
 
 - `backend/` — Laravel API
-- `frontend/` — Nuxt storefront
+- `frontend/` — Nuxt frontend
 
-A Render monorepo configuration file is provided in `render.yaml`.
+The Dockerfile builds the frontend static assets and copies them into the Laravel `public/` folder.
 
-### Render services
+### Render service settings
 
-1. **Backend service**
-   - root: `backend`
-   - type: `php`
-   - build command: `composer install --no-dev --optimize-autoloader`
-   - start command: `php artisan serve --host 0.0.0.0 --port $PORT`
-   - health check: `/`
-   - important env vars:
-     - `APP_ENV=production`
-     - `APP_DEBUG=false`
-     - `APP_URL=https://<backend-service>.onrender.com`
-     - `DB_CONNECTION=pgsql`
-     - `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `Service Name`: `1111-app`
+- `Environment`: `Docker`
+- `Branch`: `main`
+- `Root Directory`: `.`
+- `Dockerfile Path`: `./Dockerfile`
+- `Health Check Path`: `/`
+- `Auto-Deploy`: `enabled`
 
-2. **Frontend service**
-   - root: `frontend`
-   - type: `node`
-   - build command: `npm install && npm run build`
-   - start command: `npm run preview -- --hostname 0.0.0.0 --port $PORT`
-   - health check: `/`
-   - important env vars:
-     - `NUXT_PUBLIC_API_BASE=https://<backend-service>.onrender.com`
-     - `NODE_ENV=production`
+### Environment variables
+
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_URL=https://<your-service>.onrender.com`
+- `APP_KEY=<generated-app-key>`
+- `DB_CONNECTION=pgsql`
+- `DB_HOST=<render-db-host>`
+- `DB_PORT=5432`
+- `DB_DATABASE=<render-db-name>`
+- `DB_USERNAME=<render-db-user>`
+- `DB_PASSWORD=<render-db-password>`
+- `CACHE_DRIVER=file`
+- `SESSION_DRIVER=file`
+- `QUEUE_CONNECTION=sync`
+- `NUXT_PUBLIC_API_BASE=https://<your-service>.onrender.com`
+- `NODE_ENV=production`
 
 ### Notes
 
-- `render.yaml` defines both services for Render auto-deploy.
-- The backend should use a managed database on Render; do not rely on SQLite in production.
-- Set database credentials in Render's environment variables.
-- The frontend reads `NUXT_PUBLIC_API_BASE` from environment.
+- Use a managed database on Render; do not use SQLite in production.
+- `render.yaml` provides the deployment configuration for Render.
+- The Docker container serves Laravel via Apache and includes the built Nuxt frontend.
