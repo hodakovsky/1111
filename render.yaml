@@ -1,0 +1,38 @@
+services:
+  - type: web_service
+    name: 1111-backend
+    env: php
+    region: oregon
+    branch: main
+    root: backend
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      APP_URL: https://1111-backend.onrender.com
+      DB_CONNECTION: pgsql
+      DB_HOST: ''
+      DB_PORT: '5432'
+      DB_DATABASE: ''
+      DB_USERNAME: ''
+      DB_PASSWORD: ''
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+
+  - type: web_service
+    name: 1111-frontend
+    env: node
+    region: oregon
+    branch: main
+    root: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview -- --hostname 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      NUXT_PUBLIC_API_BASE: https://1111-backend.onrender.com
+      NODE_ENV: production
